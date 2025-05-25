@@ -2,10 +2,20 @@
 import { useSpring, animated } from '@react-spring/web';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+
+// Maintenance task interface
+interface MaintenanceTask {
+	id: number;
+	task: string;
+	interval: number;
+	tip: string;
+	due: string;
+	dueMileage?: number;
+}
 
 // Default maintenance tasks
-const defaultMaintenanceTasks = [
+const defaultMaintenanceTasks: MaintenanceTask[] = [
 	{ id: 1, task: 'Oil Change', interval: 5000, tip: 'Use manufacturer-recommended oil.', due: '2025-06-01' },
 	{ id: 2, task: 'Brake Inspection', interval: 15000, tip: 'Check pads and fluid.', due: '2025-06-15' },
 	{ id: 3, task: 'Tire Pressure Check', interval: 3000, tip: 'Check all four tires.', due: '2025-05-25' },
@@ -20,7 +30,7 @@ export default function Home() {
 		year: '',
 		mileage: '',
 	});
-	const [projectedTasks, setProjectedTasks] = useState([]);
+	const [projectedTasks, setProjectedTasks] = useState<MaintenanceTask[]>([]);
 	const [futureMileage, setFutureMileage] = useState(0);
 
 	const fadeIn = useSpring({
