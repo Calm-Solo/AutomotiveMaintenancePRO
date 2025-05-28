@@ -126,11 +126,11 @@ export default function Home() {
 
             {/* Dropdown Menu */}
             {isDropdownOpen && (
-              <div className="absolute top-full left-0 mt-2 w-48 rounded-md shadow-lg bg-blue-900 ring-1 ring-black ring-opacity-5">
+              <div className="absolute top-full left-0 mt-2 w-48 rounded-md shadow-lg bg-blue-900 ring-1 ring-black ring-opacity-5 md:w-48">
                 <div className="py-1" role="menu" aria-orientation="vertical">
                   <Link
                     href="/ai-assistance"
-                    className="block px-4 py-2 text-sm text-blue-100 hover:bg-blue-800"
+                    className="block px-4 py-2 text-base text-blue-100 hover:bg-blue-800"
                     role="menuitem"
                     onClick={() => setIsDropdownOpen(false)}
                   >
