@@ -126,11 +126,16 @@ export default function Home() {
 
             {/* Dropdown Menu */}
             {isDropdownOpen && (
-              <div className="absolute top-full left-0 mt-2 w-48 rounded-md shadow-lg bg-blue-900 ring-1 ring-black ring-opacity-5 md:w-48">
+              <div 
+                className="absolute top-full left-0 mt-2 w-screen sm:w-48 rounded-md 
+                shadow-lg bg-blue-950/95 backdrop-blur-sm ring-1 ring-white/20 
+                border border-blue-800/50 z-50"
+              >
                 <div className="py-1" role="menu" aria-orientation="vertical">
                   <Link
                     href="/ai-assistance"
-                    className="block px-4 py-2 text-base text-blue-100 hover:bg-blue-800"
+                    className="block px-6 py-3 text-base text-blue-100 hover:bg-blue-800/50 
+                    border-b border-blue-800/30 transition-colors"
                     role="menuitem"
                     onClick={() => setIsDropdownOpen(false)}
                   >
@@ -138,13 +143,13 @@ export default function Home() {
                   </Link>
                   <Link
                     href="/ev-companion"
-                    className="block px-4 py-2 text-sm text-blue-100 hover:bg-blue-800"
+                    className="block px-6 py-3 text-base text-blue-100 hover:bg-blue-800/50 
+                    transition-colors"
                     role="menuitem"
                     onClick={() => setIsDropdownOpen(false)}
                   >
                     EV Companion
                   </Link>
-                  {/* Add more menu items here */}
                 </div>
               </div>
             )}
