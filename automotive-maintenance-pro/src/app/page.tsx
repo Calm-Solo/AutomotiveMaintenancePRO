@@ -136,6 +136,14 @@ export default function Home() {
                   >
                     AI Assistance
                   </Link>
+                  <Link
+                    href="/ev-companion"
+                    className="block px-4 py-2 text-sm text-blue-100 hover:bg-blue-800"
+                    role="menuitem"
+                    onClick={() => setIsDropdownOpen(false)}
+                  >
+                    EV Companion
+                  </Link>
                   {/* Add more menu items here */}
                 </div>
               </div>

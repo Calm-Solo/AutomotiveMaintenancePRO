@@ -1,0 +1,353 @@
+Home Page (Dashboard)
++---------------------------------------------------------------------------------+
+| [Logo]    AutoPro      [Menu Icon: AI Assistance Hub | Other Pages…]            |
++---------------------------------------------------------------------------------+
+| HERO SECTION                                                                   |
+|  ----------------------------------------------------------------------------- |
+|  |  Animated Title (e.g., “Welcome to AutoPro”)                             | |
+|  |  Subtitle (e.g., “Your Personal Automotive Care Companion”)               | |
+|  ----------------------------------------------------------------------------- |
+|                                                                                 |
+| VEHICLE INFORMATION FORM                                                        |
+|  ----------------------------------------------------------------------------- |
+|  |  Make: [_____________]  Model: [_____________]   Year: [____]              | | 
+|  |  Mileage: [_____________]                                                 | |
+|  |  [ Get Started ]   *(Submits data, triggers maintenance timeline)*         | |
+|  ----------------------------------------------------------------------------- |
+|                                                                                 |
+| PROJECTED MAINTENANCE TIMELINE                                                  |
+|  ----------------------------------------------------------------------------- |
+|  | Interactive Mileage Slider                                               | |
+|  | List of Upcoming Tasks (with name, projected due mileage, progress bar)     | |
+|  ----------------------------------------------------------------------------- |
++---------------------------------------------------------------------------------+
+| FOOTER: Contact | About | Privacy Policy                                      |
++---------------------------------------------------------------------------------+
+Notes:
+•	After the user enters vehicle data, the timeline updates dynamically.
+•	Subtle animations (using react-spring/framer-motion) draw attention to new or urgent tasks.
+
+AI Assistance Hub
+
++---------------------------------------------------------------------------------+
+| [Logo]    AutoPro      [Navigation Menu: Dashboard, Recall Finder, etc.]       |
++---------------------------------------------------------------------------------+
+| AI ASSISTANCE HUB                                                             |
+|  ----------------------------------------------------------------------------- |
+|  |  Header: “Your AI Mechanic is Here”                                      | |
+|  ----------------------------------------------------------------------------- |
+|                                                                                 |
+| [Chatbot Interaction Panel]                                                     |
+|  ----------------------------------------------------------------------------- |
+|  |  Chat Bubble Area: Conversational UI for text (and/or voice input)        | |
+|  |  [Type your question…]     [Send]        [Voice Input Button Icon]         | |
+|  ----------------------------------------------------------------------------- |
+|                                                                                 |
+| [Query History / Suggested FAQs]                                                |
+|  ----------------------------------------------------------------------------- |
+|  |  List items: “What does that noise mean?”, “Check engine light advice”, etc.| |
+|  ----------------------------------------------------------------------------- |
+|                                                                                 |
+| [Premium Upgrade Prompt]                                                        |
+|  ----------------------------------------------------------------------------- |
+|  | “Unlock advanced diagnostics and personalized insights” [Upgrade Now]      | |
+|  ----------------------------------------------------------------------------- |
++---------------------------------------------------------------------------------+
+| FOOTER                                                                        |
++---------------------------------------------------------------------------------+
+
+Notes:
+•	Emphasis on a conversational UI with quick-access “suggested questions” based on the user’s vehicle history.
+•	Consider a clear call-to-action for premium services, detailing features like faster response times or in-depth diagnostics.
+
+
+
+
+
+
+
+
+Maintenance History & Dashboard
+
++---------------------------------------------------------------------------------+
+| [Logo]    AutoPro      [Navigation Menu]                                       |
++---------------------------------------------------------------------------------+
+| MAINTENANCE HISTORY                                                           |
+|  ----------------------------------------------------------------------------- |
+|  |  Header: “Your Maintenance Journey”                                   | |
+|  ----------------------------------------------------------------------------- |
+|                                                                                 |
+| [Timeline/List View]                                                            |
+|  ----------------------------------------------------------------------------- |
+|  |  Date | Maintenance Task  | Mileage | Notes/Photo (expandable)         | |
+|  ----------------------------------------------------------------------------- |
+|                                                                                 |
+| [Visual Analytics]                                                              |
+|  ----------------------------------------------------------------------------- |
+|  |  Graphs/Charts showing progress trends, completed tasks over time         | |
+|  ----------------------------------------------------------------------------- |
++---------------------------------------------------------------------------------+
+| FOOTER                                                                        |
++---------------------------------------------------------------------------------+
+
+Notes:
+•	Users can click on entries to see detailed service logs.
+•	Potential integration of AI analytics to derive patterns (e.g., average service intervals).
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Cost & Savings Estimator
+
++---------------------------------------------------------------------------------+
+| [Logo]    AutoPro      [Navigation Menu]                                       |
++---------------------------------------------------------------------------------+
+| COST & SAVINGS ESTIMATOR                                                      |
+|  ----------------------------------------------------------------------------- |
+|  |  Header: “Plan Your Maintenance Budget”                                | |
+|  ----------------------------------------------------------------------------- |
+|                                                                                 |
+| [Input Parameters]                                                              |
+|  ----------------------------------------------------------------------------- |
+|  |  Select Maintenance Type: [Dropdown]  Frequency: [Mileage/Time Interval]  | |
+|  |  [Optional: Enter historical cost data]                                  | |
+|  ----------------------------------------------------------------------------- |
+|                                                                                 |
+| [Interactive Chart]                                                             |
+|  ----------------------------------------------------------------------------- |
+|  |  Chart showing projected service costs vs. DIY savings                    | |
+|  ----------------------------------------------------------------------------- |
++---------------------------------------------------------------------------------+
+| FOOTER                                                                        |
++---------------------------------------------------------------------------------+
+
+Notes:
+•	Use tooltips to explain how savings are calculated.
+•	Dynamic graphs update as users adjust parameters.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Educational Resources
+
++---------------------------------------------------------------------------------+
+| [Logo]    AutoPro      [Navigation Menu]                                       |
++---------------------------------------------------------------------------------+
+| EDUCATIONAL RESOURCES                                                         |
+|  ----------------------------------------------------------------------------- |
+|  |  Header: “DIY Tutorials & Auto Care Tips”                              | |
+|  ----------------------------------------------------------------------------- |
+|                                                                                 |
+| [Filter/Category Sidebar]                                                       |
+|  ----------------------------------------------------------------------------- |
+|  |  Categories: Maintenance Basics, Advanced Repairs, Safety Tips, DIY Guides  | |
+|  ----------------------------------------------------------------------------- |
+|                                                                                 |
+| [Content Area]                                                                  |
+|  ----------------------------------------------------------------------------- |
+|  |  Cards/List of Tutorials: Each card includes title, snippet, & thumbnail     | |
+|  |  Option to “Learn More” that opens detailed tutorial or video example        | |
+|  ----------------------------------------------------------------------------- |
++---------------------------------------------------------------------------------+
+| FOOTER                                                                        |
++---------------------------------------------------------------------------------+
+
+Notes:
+•	AI integration can suggest personalized tutorials based on the user’s vehicle history.
+•	Include community ratings and comments on each resource.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+User profile & Multi Vehicle Management
+
++---------------------------------------------------------------------------------+
+| [Logo]    AutoPro      [Navigation Menu]                                       |
++---------------------------------------------------------------------------------+
+| MY PROFILE & VEHICLE MANAGEMENT                                               |
+|  ----------------------------------------------------------------------------- |
+|  |  Header: “Welcome, [User Name]”                                         | |
+|  ----------------------------------------------------------------------------- |
+|                                                                                 |
+| [User Details Section]                                                          |
+|  ----------------------------------------------------------------------------- |
+|  |  Profile Picture, Name, Subscription Status, Payment History              | |
+|  ----------------------------------------------------------------------------- |
+|                                                                                 |
+| [Vehicle Dashboard]                                                             |
+|  ----------------------------------------------------------------------------- |
+|  |  List of Registered Vehicles:                                           | |
+|  |  - Vehicle Card: Make, Model, Year, Current Mileage, next service due       | |
+|  |  - [Add New Vehicle] button                                                 | |
+|  ----------------------------------------------------------------------------- |
+|                                                                                 |
+| [Additional Options]                                                            |
+|  ----------------------------------------------------------------------------- |
+|  |  Settings, Notifications, Premium Service Management, etc.                | |
+|  ----------------------------------------------------------------------------- |
++---------------------------------------------------------------------------------+
+| FOOTER                                                                        |
++---------------------------------------------------------------------------------+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Service Scheduling & Local Partnerships
+
++---------------------------------------------------------------------------------+
+| [Logo]    AutoPro      [Navigation Menu]                                       |
++---------------------------------------------------------------------------------+
+| SERVICE SCHEDULING                                                            |
+|  ----------------------------------------------------------------------------- |
+|  |  Header: “Book a Service Appointment”                                 | |
+|  ----------------------------------------------------------------------------- |
+|                                                                                 |
+| [Local Service Provider Search]                                                 |
+|  ----------------------------------------------------------------------------- |
+|  |  Map/Listing:                                                Search Bar  | |
+|  |  “Enter your zipcode”          [Search]                                   | |
+|  ----------------------------------------------------------------------------- |
+|                                                                                 |
+| [Appointment Booking Widget]                                                    |
+|  ----------------------------------------------------------------------------- |
+|  |  Provider Details, Available Time Slots, Quick Booking Options            | |
+|  ----------------------------------------------------------------------------- |
++---------------------------------------------------------------------------------+
+| FOOTER                                                                        |
++---------------------------------------------------------------------------------+
+
+Notes:
+•	Consider integrating a calendar sync (Outlook/Google).
+•	Display ratings/reviews for each provider.
+
+
+
+------ -
+
+
+
+
+
+
+
+
+
+
+
+EV COMPANION
+
+
+Make: [_____________]  Model: [_____________]  Year: [____]  
+Mileage: [_____________]  
+[ ] This is an Electric Vehicle  
+[ Get Started ]
+
+
++---------------------------------------------------------------------------------+
+| [Logo] AutoPro [Navigation Menu: Dashboard, EV Companion, etc.] |
++---------------------------------------------------------------------------------+
+EV COMPANION
+
+-----------------------------------------------------------------------------
+| |
+[Battery Health Overview]
+
+
+-----------------------------------------------------------------------------
+| |
+[Charging Planner]
+
+
+-----------------------------------------------------------------------------
+| |
+[Nearby Chargers Map]
+
+
+-----------------------------------------------------------------------------
+| |
+[Maintenance for EVs]
+
+
+
+-----------------------------------------------------------------------------
+| |
+[Software Update Log]
+
+-----------------------------------------------------------------------------
++---------------------------------------------------------------------------------+
+| FOOTER |
++---------------------------------------------------------------------------------+
+Notes:
+•	EV section becomes visible when “This is an Electric Vehicle” is checked in the vehicle form.
+•	Data like battery health can be estimated or user-entered (MVP version).
+•	Later, API integration with Tesla, Rivian, etc., can automate update logs.
+
+
+
+
+
+
+
+
+
+Cost & Savings Estimator (EV Additions)
+
+[ ] I'm comparing an EV vs. Gas Car
+
+Dynamic Updates:
+•	Graph: EV charging cost vs. gas fuel cost
+•	Long-term maintenance savings
+•	Environmental impact estimate (optional)
+________________________________________
+🎓 Educational Resources
+New Category: “EV Knowledge”
+Sample Tutorials:
+•	“How to Extend EV Battery Life”
+•	“Level 1, 2, and DC Fast Charging Explained”
+•	“How to Plan a Road Trip in Your EV”
+
