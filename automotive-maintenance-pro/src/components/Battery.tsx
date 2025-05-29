@@ -48,6 +48,18 @@ export default function Battery({ charge, showPercentage = true }: BatteryProps)
           </div>
         )}
       </div>
+      <input
+        type="date"
+        id="purchaseDate"
+        name="purchaseDate"
+        // value={purchaseDate}
+        // onChange={(e) => {
+        //   setPurchaseDate(e.target.value);
+        //   const initialHealth = calculateInitialBatteryHealth(e.target.value);
+        //   setBatteryData({ ...batteryData, degradation: initialHealth });
+        // }}
+        className="w-full px-4 py-2 rounded-lg bg-white/5 border border-blue-300/30 text-white placeholder-blue-200/70 focus:outline-none focus:ring-2 focus:ring-blue-400"
+      />
     </div>
   );
 }

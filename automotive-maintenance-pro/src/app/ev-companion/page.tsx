@@ -43,6 +43,21 @@ export default function EVCompanion() {
     degradation: 95,
   });
 
+  const [purchaseDate, setPurchaseDate] = useState('');
+  const [projectedMileage, setProjectedMileage] = useState(0);
+
+  const calculateInitialBatteryHealth = (purchaseDate: string) => {
+    if (!purchaseDate) return 100;
+
+    const purchaseDateObj = new Date(purchaseDate);
+    const currentDate = new Date();
+    const yearsOwned = currentDate.getFullYear() - purchaseDateObj.getFullYear();
+
+    // Simple linear degradation model (2% per year)
+    const degradation = Math.max(0, 100 - (yearsOwned * 2));
+    return degradation;
+  };
+
   const [destination, setDestination] = useState('');
   const [nearbyStations, setNearbyStations] = useState<ChargingStation[]>([]);
   const [batteryHistory, setBatteryHistory] = useState<BatteryHealthRecord[]>(
@@ -103,6 +118,36 @@ export default function EVCompanion() {
               </div>
             </div>
           </div>
+          {/* Battery Data Input Form */}
+          <form className="mt-4 space-y-4">
+            <div>
+              <label htmlFor="purchaseDate" className="block text-blue-100 text-sm font-medium mb-2">
+                EV Purchase Date
+              </label>
+              <input
+                type="date"
+                id="purchaseDate"
+                name="purchaseDate"
+                className="w-full px-4 py-2 rounded-lg bg-white/5 border border-blue-300/30 text-white placeholder-blue-200/70 focus:outline-none focus:ring-2 focus:ring-blue-400"
+              />
+            </div>
+            <div>
+              <label htmlFor="projectedMileage" className="block text-blue-100 text-sm font-medium mb-2">
+                Projected Future Mileage
+              </label>
+              <input
+                type="number"
+                id="projectedMileage"
+                name="projectedMileage"
+                className="w-full px-4 py-2 rounded-lg bg-white/5 border border-blue-300/30 text-white placeholder-blue-200/70 focus:outline-none focus:ring-2 focus:ring-blue-400"
+              />
+            </div>
+            <button
+              className="w-full py-3 px-6 rounded-lg bg-blue-500 hover:bg-blue-600 text-white font-medium transition-colors"
+            >
+              Update Battery Info
+            </button>
+          </form>
         </motion.div>
 
         {/* Historical Data */}
