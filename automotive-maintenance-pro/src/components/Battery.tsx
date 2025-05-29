@@ -6,6 +6,13 @@ interface BatteryProps {
 }
 
 export default function Battery({ charge, showPercentage = true }: BatteryProps) {
+  // Get battery color based on charge level
+  const getBatteryColor = (level: number) => {
+    if (level <= 20) return 'from-red-500 to-red-600';
+    if (level <= 40) return 'from-yellow-500 to-yellow-600';
+    return 'from-green-400 to-green-500';
+  };
+
   return (
     <div className="relative w-32 h-64">
       {/* Battery Head */}
@@ -20,11 +27,7 @@ export default function Battery({ charge, showPercentage = true }: BatteryProps)
           initial={{ height: 0 }}
           animate={{ height: `${charge}%` }}
           transition={{ duration: 1.5, ease: "easeInOut" }}
-          className="absolute bottom-0 w-full bg-gradient-to-t from-green-400 to-emerald-600"
-          style={{ 
-            height: `${charge}%`,
-            backgroundColor: charge < 20 ? '#ef4444' : charge < 50 ? '#eab308' : '#22c55e'
-          }}
+          className={`absolute bottom-0 w-full bg-gradient-to-t ${getBatteryColor(charge)}`}
         />
         
         {/* Battery Segments */}
