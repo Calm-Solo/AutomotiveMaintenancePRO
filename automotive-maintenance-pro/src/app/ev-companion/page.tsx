@@ -45,6 +45,8 @@ export default function EVCompanion() {
 
   const [purchaseDate, setPurchaseDate] = useState('');
   const [projectedMileage, setProjectedMileage] = useState(0);
+  const [purchaseDateError, setPurchaseDateError] = useState('');
+  const [projectedMileageError, setProjectedMileageError] = useState('');
 
   const calculateInitialBatteryHealth = (purchaseDate: string) => {
     if (!purchaseDate) return 100;
@@ -55,6 +57,15 @@ export default function EVCompanion() {
 
     // Simple linear degradation model (2% per year)
     const degradation = Math.max(0, 100 - (yearsOwned * 2));
+    return degradation;
+  };
+
+  const calculateProjectedBatteryHealth = (
+    initialHealth: number,
+    projectedMileage: number
+  ) => {
+    // Simple degradation model (1% degradation per 10,000 miles)
+    const degradation = Math.max(0, initialHealth - (projectedMileage / 10000));
     return degradation;
   };
 
@@ -77,6 +88,26 @@ export default function EVCompanion() {
       { monthsFromNow: 24, predictedHealth: 82, confidence: 85 },
     ]
   );
+
+  const validateInputs = () => {
+    let isValid = true;
+
+    if (!purchaseDate) {
+      setPurchaseDateError('Please enter the EV purchase date');
+      isValid = false;
+    } else {
+      setPurchaseDateError('');
+    }
+
+    if (projectedMileage < 0) {
+      setProjectedMileageError('Projected mileage must be non-negative');
+      isValid = false;
+    } else {
+      setProjectedMileageError('');
+    }
+
+    return isValid;
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-900 via-blue-800 to-indigo-900">
@@ -128,22 +159,70 @@ export default function EVCompanion() {
                 type="date"
                 id="purchaseDate"
                 name="purchaseDate"
+                value={purchaseDate}
+                onChange={(e) => {
+                  const newPurchaseDate = e.target.value;
+                  setPurchaseDate(newPurchaseDate);
+                  const initialHealth = calculateInitialBatteryHealth(newPurchaseDate);
+                  const projectedHealth = calculateProjectedBatteryHealth(
+                    initialHealth,
+                    projectedMileage
+                  );
+                  setBatteryData({
+                    ...batteryData,
+                    degradation: projectedHealth,
+                  });
+                  setPurchaseDateError('');
+                }}
                 className="w-full px-4 py-2 rounded-lg bg-white/5 border border-blue-300/30 text-white placeholder-blue-200/70 focus:outline-none focus:ring-2 focus:ring-blue-400"
               />
+              {purchaseDateError && (
+                <p className="text-red-500 text-sm mt-1">{purchaseDateError}</p>
+              )}
             </div>
             <div>
               <label htmlFor="projectedMileage" className="block text-blue-100 text-sm font-medium mb-2">
                 Projected Future Mileage
               </label>
               <input
-                type="number"
+                type="range"
                 id="projectedMileage"
                 name="projectedMileage"
-                className="w-full px-4 py-2 rounded-lg bg-white/5 border border-blue-300/30 text-white placeholder-blue-200/70 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                min={0}
+                max={100000}
+                step={1000}
+                value={projectedMileage}
+                onChange={(e) => {
+                  const newProjectedMileage = Number(e.target.value);
+                  setProjectedMileage(newProjectedMileage);
+                  const initialHealth = calculateInitialBatteryHealth(purchaseDate);
+                  const projectedHealth = calculateProjectedBatteryHealth(
+                    initialHealth,
+                    newProjectedMileage
+                  );
+                  setBatteryData({
+                    ...batteryData,
+                    degradation: projectedHealth,
+                  });
+                  setProjectedMileageError('');
+                }}
+                className="w-full accent-blue-500"
               />
+              <p className="text-blue-100 text-sm mt-1">
+                {projectedMileage} miles
+              </p>
+              {projectedMileageError && (
+                <p className="text-red-500 text-sm mt-1">{projectedMileageError}</p>
+              )}
             </div>
             <button
               className="w-full py-3 px-6 rounded-lg bg-blue-500 hover:bg-blue-600 text-white font-medium transition-colors"
+              onClick={(e) => {
+                e.preventDefault();
+                if (validateInputs()) {
+                  // Update battery info logic
+                }
+              }}
             >
               Update Battery Info
             </button>
