@@ -1,12 +1,12 @@
 import { motion } from 'framer-motion';
 
-interface BatteryProps {
+interface BatteryDisplayProps {
   charge: number;
   showPercentage?: boolean;
   degradation: number;
 }
 
-export default function Battery({ charge, showPercentage = true, degradation }: BatteryProps) {
+export default function BatteryDisplay({ charge, showPercentage = true, degradation }: BatteryDisplayProps) {
   // Get battery color based on charge level
   const getBatteryColor = (level: number) => {
     if (level <= 10) return 'from-red-600 to-red-700';

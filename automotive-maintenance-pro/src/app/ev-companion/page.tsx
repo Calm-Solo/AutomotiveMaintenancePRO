@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import Battery from '@/components/Battery';
+import BatteryDisplay from '@/components/BatteryDisplay';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 interface BatteryData {
@@ -128,7 +128,7 @@ export default function EVCompanion() {
           <h2 className="text-2xl font-semibold text-white mb-6">Current Battery Status</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="flex justify-center items-center">
-              <Battery charge={batteryData.currentCharge} />
+              <BatteryDisplay charge={batteryData.currentCharge} degradation={batteryData.degradation} />
             </div>
             <div className="space-y-4">
               <div className="bg-blue-900/40 rounded-lg p-6">
