@@ -10,6 +10,8 @@ interface BatteryData {
   maxRange: number;
   lastChargeDate: string;
   degradation: number;
+  initialMileage: number;  // Mileage when purchased
+  currentMileage: number;  // Current mileage
 }
 
 interface ChargingStation {
@@ -41,6 +43,8 @@ export default function EVCompanion() {
     maxRange: 300,
     lastChargeDate: new Date().toISOString(),
     degradation: 95,
+    initialMileage: 0,
+    currentMileage: 0,
   });
 
   const [purchaseDate, setPurchaseDate] = useState('');
@@ -48,16 +52,28 @@ export default function EVCompanion() {
   const [purchaseDateError, setPurchaseDateError] = useState('');
   const [projectedMileageError, setProjectedMileageError] = useState('');
 
-  const calculateInitialBatteryHealth = (purchaseDate: string) => {
+  // Update the calculation function to consider both time and mileage
+  const calculateInitialBatteryHealth = (
+    purchaseDate: string,
+    initialMileage: number,
+    currentMileage: number
+  ) => {
     if (!purchaseDate) return 100;
 
     const purchaseDateObj = new Date(purchaseDate);
     const currentDate = new Date();
     const yearsOwned = currentDate.getFullYear() - purchaseDateObj.getFullYear();
+    const mileageDriven = currentMileage - initialMileage;
 
-    // Simple linear degradation model (2% per year)
-    const degradation = Math.max(0, 100 - (yearsOwned * 2));
-    return degradation;
+    // Degradation based on time (2% per year)
+    const timeBasedDegradation = yearsOwned * 2;
+    
+    // Degradation based on mileage (1% per 10,000 miles)
+    const mileageBasedDegradation = (mileageDriven / 10000);
+
+    // Combined degradation (weighted average)
+    const totalDegradation = Math.max(0, (timeBasedDegradation + mileageBasedDegradation) / 2);
+    return Math.max(0, 100 - totalDegradation);
   };
 
   const calculateProjectedBatteryHealth = (
@@ -107,6 +123,26 @@ export default function EVCompanion() {
     }
 
     return isValid;
+  };
+
+  const updateBatteryHealth = (
+    purchaseDate: string,
+    initialMileage: number,
+    currentMileage: number
+  ) => {
+    const initialHealth = calculateInitialBatteryHealth(
+      purchaseDate,
+      initialMileage,
+      currentMileage
+    );
+    const projectedHealth = calculateProjectedBatteryHealth(
+      initialHealth,
+      projectedMileage
+    );
+    setBatteryData(prev => ({
+      ...prev,
+      degradation: projectedHealth
+    }));
   };
 
   return (
@@ -163,16 +199,7 @@ export default function EVCompanion() {
                 onChange={(e) => {
                   const newPurchaseDate = e.target.value;
                   setPurchaseDate(newPurchaseDate);
-                  const initialHealth = calculateInitialBatteryHealth(newPurchaseDate);
-                  const projectedHealth = calculateProjectedBatteryHealth(
-                    initialHealth,
-                    projectedMileage
-                  );
-                  setBatteryData({
-                    ...batteryData,
-                    degradation: projectedHealth,
-                  });
-                  setPurchaseDateError('');
+                  updateBatteryHealth(newPurchaseDate, batteryData.initialMileage, batteryData.currentMileage);
                 }}
                 className="w-full px-4 py-2 rounded-lg bg-white/5 border border-blue-300/30 text-white placeholder-blue-200/70 focus:outline-none focus:ring-2 focus:ring-blue-400"
               />
@@ -180,52 +207,48 @@ export default function EVCompanion() {
                 <p className="text-red-500 text-sm mt-1">{purchaseDateError}</p>
               )}
             </div>
+            
             <div>
-              <label htmlFor="projectedMileage" className="block text-blue-100 text-sm font-medium mb-2">
-                Projected Future Mileage
+              <label htmlFor="initialMileage" className="block text-blue-100 text-sm font-medium mb-2">
+                Initial Mileage When Purchased
               </label>
               <input
-                type="range"
-                id="projectedMileage"
-                name="projectedMileage"
-                min={0}
-                max={100000}
-                step={1000}
-                value={projectedMileage}
+                type="number"
+                id="initialMileage"
+                name="initialMileage"
+                value={batteryData.initialMileage}
                 onChange={(e) => {
-                  const newProjectedMileage = Number(e.target.value);
-                  setProjectedMileage(newProjectedMileage);
-                  const initialHealth = calculateInitialBatteryHealth(purchaseDate);
-                  const projectedHealth = calculateProjectedBatteryHealth(
-                    initialHealth,
-                    newProjectedMileage
-                  );
-                  setBatteryData({
-                    ...batteryData,
-                    degradation: projectedHealth,
-                  });
-                  setProjectedMileageError('');
+                  const newInitialMileage = Number(e.target.value);
+                  setBatteryData(prev => ({
+                    ...prev,
+                    initialMileage: newInitialMileage
+                  }));
+                  updateBatteryHealth(purchaseDate, newInitialMileage, batteryData.currentMileage);
                 }}
-                className="w-full accent-blue-500"
+                className="w-full px-4 py-2 rounded-lg bg-white/5 border border-blue-300/30 text-white placeholder-blue-200/70 focus:outline-none focus:ring-2 focus:ring-blue-400"
               />
-              <p className="text-blue-100 text-sm mt-1">
-                {projectedMileage} miles
-              </p>
-              {projectedMileageError && (
-                <p className="text-red-500 text-sm mt-1">{projectedMileageError}</p>
-              )}
             </div>
-            <button
-              className="w-full py-3 px-6 rounded-lg bg-blue-500 hover:bg-blue-600 text-white font-medium transition-colors"
-              onClick={(e) => {
-                e.preventDefault();
-                if (validateInputs()) {
-                  // Update battery info logic
-                }
-              }}
-            >
-              Update Battery Info
-            </button>
+
+            <div>
+              <label htmlFor="currentMileage" className="block text-blue-100 text-sm font-medium mb-2">
+                Current Mileage
+              </label>
+              <input
+                type="number"
+                id="currentMileage"
+                name="currentMileage"
+                value={batteryData.currentMileage}
+                onChange={(e) => {
+                  const newCurrentMileage = Number(e.target.value);
+                  setBatteryData(prev => ({
+                    ...prev,
+                    currentMileage: newCurrentMileage
+                  }));
+                  updateBatteryHealth(purchaseDate, batteryData.initialMileage, newCurrentMileage);
+                }}
+                className="w-full px-4 py-2 rounded-lg bg-white/5 border border-blue-300/30 text-white placeholder-blue-200/70 focus:outline-none focus:ring-2 focus:ring-blue-400"
+              />
+            </div>
           </form>
         </motion.div>
 
