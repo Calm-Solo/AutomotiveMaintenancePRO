@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import Link from 'next/link';
 import BatteryDisplay from '@/components/BatteryDisplay';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { calculateBatteryDegradation } from '@/utils/batteryDegradation';
 
 interface BatteryData {
   currentCharge: number;
@@ -51,6 +52,75 @@ export default function EVCompanion() {
   const [projectedMileage, setProjectedMileage] = useState(0);
   const [purchaseDateError, setPurchaseDateError] = useState('');
   const [projectedMileageError, setProjectedMileageError] = useState('');
+
+  // Add new state for validation and additional factors
+  const [errors, setErrors] = useState({
+    initialMileage: '',
+    currentMileage: '',
+    projectedMileage: '',
+  });
+
+  const [climateZone, setClimateZone] = useState(75); // Default temperature
+  const [fastChargingFrequency, setFastChargingFrequency] = useState(0.2); // Default 20%
+
+  // Validation function
+  const validateMileageInputs = (
+    initial: number,
+    current: number,
+    projected: number
+  ): boolean => {
+    let isValid = true;
+    const newErrors = {
+      initialMileage: '',
+      currentMileage: '',
+      projectedMileage: '',
+    };
+
+    if (initial < 0) {
+      newErrors.initialMileage = 'Initial mileage cannot be negative';
+      isValid = false;
+    }
+
+    if (current < initial) {
+      newErrors.currentMileage = 'Current mileage cannot be less than initial mileage';
+      isValid = false;
+    }
+
+    if (projected < current) {
+      newErrors.projectedMileage = 'Projected mileage cannot be less than current mileage';
+      isValid = false;
+    }
+
+    setErrors(newErrors);
+    return isValid;
+  };
+
+  // Update battery health calculation
+  const updateBatteryHealth = () => {
+    if (!validateMileageInputs(
+      batteryData.initialMileage,
+      batteryData.currentMileage,
+      projectedMileage
+    )) {
+      return;
+    }
+
+    const purchaseDateObj = new Date(purchaseDate);
+    const currentDate = new Date();
+    const yearsOwned = (currentDate.getTime() - purchaseDateObj.getTime()) / (1000 * 60 * 60 * 24 * 365);
+
+    const degradation = calculateBatteryDegradation({
+      age: yearsOwned,
+      milesDriven: batteryData.currentMileage - batteryData.initialMileage,
+      climate: climateZone,
+      chargingHabits: fastChargingFrequency,
+    });
+
+    setBatteryData(prev => ({
+      ...prev,
+      degradation: 100 - degradation
+    }));
+  };
 
   // Update the calculation function to consider both time and mileage
   const calculateInitialBatteryHealth = (
@@ -125,26 +195,6 @@ export default function EVCompanion() {
     return isValid;
   };
 
-  const updateBatteryHealth = (
-    purchaseDate: string,
-    initialMileage: number,
-    currentMileage: number
-  ) => {
-    const initialHealth = calculateInitialBatteryHealth(
-      purchaseDate,
-      initialMileage,
-      currentMileage
-    );
-    const projectedHealth = calculateProjectedBatteryHealth(
-      initialHealth,
-      projectedMileage
-    );
-    setBatteryData(prev => ({
-      ...prev,
-      degradation: projectedHealth
-    }));
-  };
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-900 via-blue-800 to-indigo-900">
       {/* Navigation Bar */}
@@ -199,7 +249,7 @@ export default function EVCompanion() {
                 onChange={(e) => {
                   const newPurchaseDate = e.target.value;
                   setPurchaseDate(newPurchaseDate);
-                  updateBatteryHealth(newPurchaseDate, batteryData.initialMileage, batteryData.currentMileage);
+                  updateBatteryHealth();
                 }}
                 className="w-full px-4 py-2 rounded-lg bg-white/5 border border-blue-300/30 text-white placeholder-blue-200/70 focus:outline-none focus:ring-2 focus:ring-blue-400"
               />
@@ -215,18 +265,22 @@ export default function EVCompanion() {
               <input
                 type="number"
                 id="initialMileage"
-                name="initialMileage"
                 value={batteryData.initialMileage}
                 onChange={(e) => {
-                  const newInitialMileage = Number(e.target.value);
+                  const value = Number(e.target.value);
                   setBatteryData(prev => ({
                     ...prev,
-                    initialMileage: newInitialMileage
+                    initialMileage: value
                   }));
-                  updateBatteryHealth(purchaseDate, newInitialMileage, batteryData.currentMileage);
+                  validateMileageInputs(value, batteryData.currentMileage, projectedMileage);
                 }}
-                className="w-full px-4 py-2 rounded-lg bg-white/5 border border-blue-300/30 text-white placeholder-blue-200/70 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                className={`w-full px-4 py-2 rounded-lg bg-white/5 border ${
+                  errors.initialMileage ? 'border-red-500' : 'border-blue-300/30'
+                } text-white placeholder-blue-200/70 focus:outline-none focus:ring-2 focus:ring-blue-400`}
               />
+              {errors.initialMileage && (
+                <p className="text-red-500 text-sm mt-1">{errors.initialMileage}</p>
+              )}
             </div>
 
             <div>
@@ -244,12 +298,78 @@ export default function EVCompanion() {
                     ...prev,
                     currentMileage: newCurrentMileage
                   }));
-                  updateBatteryHealth(purchaseDate, batteryData.initialMileage, newCurrentMileage);
+                  updateBatteryHealth();
                 }}
                 className="w-full px-4 py-2 rounded-lg bg-white/5 border border-blue-300/30 text-white placeholder-blue-200/70 focus:outline-none focus:ring-2 focus:ring-blue-400"
               />
+              {errors.currentMileage && (
+                <p className="text-red-500 text-sm mt-1">{errors.currentMileage}</p>
+              )}
+            </div>
+
+            <div>
+              <label htmlFor="projectedMileage" className="block text-blue-100 text-sm font-medium mb-2">
+                Projected Mileage
+              </label>
+              <input
+                type="number"
+                id="projectedMileage"
+                name="projectedMileage"
+                value={projectedMileage}
+                onChange={(e) => {
+                  const newProjectedMileage = Number(e.target.value);
+                  setProjectedMileage(newProjectedMileage);
+                  updateBatteryHealth();
+                }}
+                className="w-full px-4 py-2 rounded-lg bg-white/5 border border-blue-300/30 text-white placeholder-blue-200/70 focus:outline-none focus:ring-2 focus:ring-blue-400"
+              />
+              {projectedMileageError && (
+                <p className="text-red-500 text-sm mt-1">{projectedMileageError}</p>
+              )}
             </div>
           </form>
+
+          {/* Additional Factors */}
+          <div className="space-y-4 mt-4">
+            <div>
+              <label className="block text-blue-100 text-sm font-medium mb-2">
+                Average Temperature (°F)
+              </label>
+              <input
+                type="range"
+                min={0}
+                max={120}
+                value={climateZone}
+                onChange={(e) => {
+                  setClimateZone(Number(e.target.value));
+                  updateBatteryHealth();
+                }}
+                className="w-full accent-blue-500"
+              />
+              <span className="text-blue-100 text-sm">{climateZone}°F</span>
+            </div>
+
+            <div>
+              <label className="block text-blue-100 text-sm font-medium mb-2">
+                Fast Charging Frequency
+              </label>
+              <input
+                type="range"
+                min={0}
+                max={1}
+                step={0.1}
+                value={fastChargingFrequency}
+                onChange={(e) => {
+                  setFastChargingFrequency(Number(e.target.value));
+                  updateBatteryHealth();
+                }}
+                className="w-full accent-blue-500"
+              />
+              <span className="text-blue-100 text-sm">
+                {Math.round(fastChargingFrequency * 100)}% of charges
+              </span>
+            </div>
+          </div>
         </motion.div>
 
         {/* Historical Data */}
