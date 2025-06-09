@@ -56,7 +56,7 @@ export default function BatteryDisplay({ charge, showPercentage = true, degradat
               {charge}%
             </span>
             <span className="text-sm text-blue-200 mt-1">
-              {getBatteryHealthMessage(charge)}
+              Health: {degradation}%
             </span>
           </div>
         )}

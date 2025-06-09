@@ -116,9 +116,20 @@ export default function EVCompanion() {
       chargingHabits: fastChargingFrequency,
     });
 
+    // Calculate current charge based on degradation and environmental factors
+    const maxPossibleCharge = 100 - degradation;
+    const temperatureImpact = Math.abs(climateZone - 70) * 0.1; // Optimal temperature around 70°F
+    const currentCharge = Math.max(0, Math.min(maxPossibleCharge - temperatureImpact, 100));
+
+    // Update max range based on degradation
+    const originalRange = 320; // miles
+    const currentMaxRange = Math.round(originalRange * (maxPossibleCharge / 100));
+
     setBatteryData(prev => ({
       ...prev,
-      degradation: 100 - degradation
+      currentCharge: Math.round(currentCharge),
+      degradation: Math.round(100 - degradation),
+      maxRange: currentMaxRange
     }));
   };
 
