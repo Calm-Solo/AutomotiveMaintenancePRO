@@ -1,10 +1,11 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import BatteryDisplay from '@/components/BatteryDisplay';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { calculateBatteryDegradation } from '@/utils/batteryDegradation';
+import RangeGauge from '@/components/RangeGauge';
 
 interface BatteryData {
   currentCharge: number;
@@ -62,6 +63,48 @@ export default function EVCompanion() {
 
   const [climateZone, setClimateZone] = useState(75); // Default temperature
   const [fastChargingFrequency, setFastChargingFrequency] = useState(0.2); // Default 20%
+
+  // Add state for driving style
+  const [drivingStyle, setDrivingStyle] = useState('Normal');
+  const [temperature, setTemperature] = useState(75); // Default temperature
+  const [estimatedRange, setEstimatedRange] = useState(0);
+
+  // Calculate estimated range whenever relevant factors change
+  const calculateEstimatedRange = () => {
+    // Base range (assuming a full charge)
+    const baseRange = batteryData.maxRange;
+    let adjustedRange = baseRange;
+
+    // Apply battery health factor
+    adjustedRange *= (batteryData.degradation / 100);
+
+    // Apply temperature impact
+    if (temperature < 32) {
+      adjustedRange *= 0.7; // 30% reduction in cold weather
+    } else if (temperature > 95) {
+      adjustedRange *= 0.85; // 15% reduction in hot weather
+    }
+
+    // Apply driving style impact
+    switch (drivingStyle) {
+      case 'Aggressive':
+        adjustedRange *= 0.8;
+        break;
+      case 'Conservative':
+        adjustedRange *= 1.2;
+        break;
+      default: // Normal
+        break;
+    }
+
+    return Math.round(adjustedRange);
+  };
+
+  // Update useEffect to use the new function
+  useEffect(() => {
+    const newEstimatedRange = calculateEstimatedRange();
+    setEstimatedRange(newEstimatedRange);
+  }, [batteryData.maxRange, batteryData.degradation, temperature, drivingStyle]);
 
   // Validation function
   const validateMileageInputs = (
@@ -380,6 +423,54 @@ export default function EVCompanion() {
                 {Math.round(fastChargingFrequency * 100)}% of charges
               </span>
             </div>
+
+            <div>
+              <label className="block text-blue-100 text-sm font-medium mb-2">
+                Driving Style
+              </label>
+              <select
+                value={drivingStyle}
+                onChange={(e) => {
+                  setDrivingStyle(e.target.value);
+                  calculateEstimatedRange();
+                }}
+                className="w-full px-4 py-2 rounded-lg bg-white/5 border border-blue-300/30 text-white placeholder-blue-200/70 focus:outline-none focus:ring-2 focus:ring-blue-400"
+              >
+                <option value="Normal">Normal</option>
+                <option value="Aggressive">Aggressive</option>
+                <option value="Conservative">Conservative</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-blue-100 text-sm font-medium mb-2">
+                Temperature (°F)
+              </label>
+              <input
+                type="number"
+                value={temperature}
+                onChange={(e) => {
+                  setTemperature(Number(e.target.value));
+                  calculateEstimatedRange();
+                }}
+                className="w-full px-4 py-2 rounded-lg bg-white/5 border border-blue-300/30 text-white placeholder-blue-200/70 focus:outline-none focus:ring-2 focus:ring-blue-400"
+              />
+            </div>
+
+            <div className="bg-blue-900/40 rounded-lg p-4">
+              <div className="flex justify-between items-center mb-2">
+                <span className="text-blue-100">Estimated Range:</span>
+                <span className="text-blue-100 font-bold">
+                  {estimatedRange} miles
+                </span>
+              </div>
+              <div className="w-full bg-blue-900/40 rounded-full h-2">
+                <div 
+                  className="bg-blue-500 h-2 rounded-full"
+                  style={{ width: `${(estimatedRange / batteryData.maxRange) * 100}%` }}
+                />
+              </div>
+            </div>
           </div>
         </motion.div>
 
@@ -455,6 +546,40 @@ export default function EVCompanion() {
                 </div>
               </div>
             ))}
+          </div>
+        </motion.div>
+
+        {/* Range Reassurance */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="bg-white/10 backdrop-blur-lg rounded-xl p-6 shadow-2xl mb-8"
+        >
+          <h2 className="text-2xl font-semibold text-white mb-6">Range Reassurance</h2>
+          <RangeGauge
+            currentRange={estimatedRange}
+            maxRange={batteryData.maxRange}
+            batteryHealth={batteryData.degradation}
+            temperature={temperature}
+            drivingStyle={drivingStyle}
+          />
+          
+          {/* Driving Style Selector */}
+          <div className="mt-6">
+            <label className="block text-blue-100 text-sm font-medium mb-2">
+              Driving Style
+            </label>
+            <select
+              value={drivingStyle}
+              onChange={(e) => setDrivingStyle(e.target.value)}
+              className="w-full px-4 py-2 rounded-lg bg-white/5 border border-blue-300/30 
+                text-white focus:outline-none focus:ring-2 focus:ring-blue-400"
+            >
+              <option value="Conservative">Conservative</option>
+              <option value="Normal">Normal</option>
+              <option value="Aggressive">Aggressive</option>
+            </select>
           </div>
         </motion.div>
       </div>
