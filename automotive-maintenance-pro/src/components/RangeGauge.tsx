@@ -6,6 +6,7 @@ interface RangeGaugeProps {
   batteryHealth: number;
   temperature: number;
   drivingStyle: string;
+  isCalculated?: boolean;
 }
 
 export default function RangeGauge({
@@ -13,10 +14,15 @@ export default function RangeGauge({
   maxRange,
   batteryHealth,
   temperature,
-  drivingStyle
+  drivingStyle,
+  isCalculated = false
 }: RangeGaugeProps) {
+  // Show initial state if not calculated
+  const displayRange = isCalculated ? currentRange : maxRange;
+  const displayHealth = isCalculated ? batteryHealth : 100;
+
   // Calculate the percentage of range remaining
-  const rangePercentage = (currentRange / maxRange) * 100;
+  const rangePercentage = (displayRange / maxRange) * 100;
 
   // Get color based on range percentage
   const getGaugeColor = () => {
@@ -61,7 +67,7 @@ export default function RangeGauge({
             className="text-2xl font-bold"
             fill="white"
           >
-            {currentRange}
+            {!isNaN(displayRange) ? displayRange : maxRange}
           </text>
           <text
             x="100"
@@ -79,7 +85,7 @@ export default function RangeGauge({
       <div className="mt-4 space-y-2 text-sm text-blue-100">
         <div className="flex justify-between">
           <span>Battery Health:</span>
-          <span>{batteryHealth}%</span>
+          <span>{displayHealth}%</span>
         </div>
         <div className="flex justify-between">
           <span>Weather Impact:</span>

@@ -2,11 +2,19 @@ import { motion } from 'framer-motion';
 
 interface BatteryDisplayProps {
   charge: number;
-  showPercentage?: boolean;
   degradation: number;
+  isCalculated?: boolean;
 }
 
-export default function BatteryDisplay({ charge, showPercentage = true, degradation }: BatteryDisplayProps) {
+export default function BatteryDisplay({ 
+  charge, 
+  degradation, 
+  isCalculated = false 
+}: BatteryDisplayProps) {
+  // Show initial state if not calculated
+  const displayCharge = isCalculated ? charge : 100;
+  const displayDegradation = isCalculated ? degradation : 100;
+
   // Get battery color based on charge level
   const getBatteryColor = (level: number) => {
     if (level <= 10) return 'from-red-600 to-red-700';
@@ -50,16 +58,14 @@ export default function BatteryDisplay({ charge, showPercentage = true, degradat
         ))}
         
         {/* Percentage Display */}
-        {showPercentage && (
-          <div className="absolute inset-0 flex items-center justify-center flex-col">
-            <span className="text-3xl font-bold text-white drop-shadow-lg">
-              {charge}%
-            </span>
-            <span className="text-sm text-blue-200 mt-1">
-              Health: {degradation}%
-            </span>
-          </div>
-        )}
+        <div className="absolute inset-0 flex items-center justify-center flex-col">
+          <span className="text-3xl font-bold text-white drop-shadow-lg">
+            {!isNaN(displayCharge) ? `${displayCharge}%` : '100%'}
+          </span>
+          <span className="text-sm text-blue-200 mt-1">
+            Health: {!isNaN(displayDegradation) ? `${displayDegradation}%` : '100%'}
+          </span>
+        </div>
       </div>
     </div>
   );

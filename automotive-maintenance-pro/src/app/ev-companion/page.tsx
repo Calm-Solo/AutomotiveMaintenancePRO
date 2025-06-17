@@ -40,11 +40,12 @@ interface BatteryPrediction {
 }
 
 export default function EVCompanion() {
+  // Update initial state with valid default values
   const [batteryData, setBatteryData] = useState<BatteryData>({
-    currentCharge: 80,
-    maxRange: 300,
+    currentCharge: 100, // Start at 100%
+    maxRange: 320, // Default max range
     lastChargeDate: new Date().toISOString(),
-    degradation: 95,
+    degradation: 100, // Start at 100% health
     initialMileage: 0,
     currentMileage: 0,
   });
@@ -229,21 +230,46 @@ export default function EVCompanion() {
     ]
   );
 
-  const validateInputs = () => {
-    let isValid = true;
+  const [isCalculated, setIsCalculated] = useState(false);
 
-    if (!purchaseDate) {
-      setPurchaseDateError('Please enter the EV purchase date');
-      isValid = false;
-    } else {
-      setPurchaseDateError('');
+  // Add form submission handler
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!validateInputs()) {
+      return;
     }
 
-    if (projectedMileage < 0) {
-      setProjectedMileageError('Projected mileage must be non-negative');
+    // Calculate battery health and range
+    const newEstimatedRange = calculateEstimatedRange();
+    setEstimatedRange(newEstimatedRange);
+    updateBatteryHealth();
+    setIsCalculated(true);
+  };
+
+  // Update the validation function
+  const validateInputs = (): boolean => {
+    let isValid = true;
+    
+    if (!purchaseDate) {
+      setPurchaseDateError('Please enter the purchase date');
       isValid = false;
-    } else {
-      setProjectedMileageError('');
+    }
+
+    if (batteryData.initialMileage < 0) {
+      setErrors(prev => ({
+        ...prev,
+        initialMileage: 'Initial mileage cannot be negative'
+      }));
+      isValid = false;
+    }
+
+    if (batteryData.currentMileage < batteryData.initialMileage) {
+      setErrors(prev => ({
+        ...prev,
+        currentMileage: 'Current mileage must be greater than initial mileage'
+      }));
+      isValid = false;
     }
 
     return isValid;
@@ -259,16 +285,11 @@ export default function EVCompanion() {
       </nav>
 
       <div className="container mx-auto px-4 py-8">
-        {/* Current Battery Status */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="bg-white/10 backdrop-blur-lg rounded-xl p-6 shadow-2xl mb-8"
-        >
-          <h2 className="text-2xl font-semibold text-white mb-6">Current Battery Status</h2>
+        <motion.div>
+          {/* Battery Status Section */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="flex justify-center items-center">
-              <BatteryDisplay charge={batteryData.currentCharge} degradation={batteryData.degradation} />
+              <BatteryDisplay charge={batteryData.currentCharge} degradation={batteryData.degradation} isCalculated={isCalculated} />
             </div>
             <div className="space-y-4">
               <div className="bg-blue-900/40 rounded-lg p-6">
@@ -289,10 +310,12 @@ export default function EVCompanion() {
               </div>
             </div>
           </div>
-          {/* Battery Data Input Form */}
-          <form className="mt-4 space-y-4">
+
+          {/* Form Section */}
+          <form onSubmit={handleSubmit} className="mt-4 space-y-4">
+            {/* Purchase Date Input */}
             <div>
-              <label htmlFor="purchaseDate" className="block text-blue-100 text-sm font-medium mb-2">
+              <label className="block text-blue-100 text-sm font-medium mb-2">
                 EV Purchase Date
               </label>
               <input
@@ -312,6 +335,7 @@ export default function EVCompanion() {
               )}
             </div>
             
+            {/* Initial Mileage Input */}
             <div>
               <label htmlFor="initialMileage" className="block text-blue-100 text-sm font-medium mb-2">
                 Initial Mileage When Purchased
@@ -337,6 +361,7 @@ export default function EVCompanion() {
               )}
             </div>
 
+            {/* Current Mileage Input */}
             <div>
               <label htmlFor="currentMileage" className="block text-blue-100 text-sm font-medium mb-2">
                 Current Mileage
@@ -361,6 +386,7 @@ export default function EVCompanion() {
               )}
             </div>
 
+            {/* Projected Mileage Input */}
             <div>
               <label htmlFor="projectedMileage" className="block text-blue-100 text-sm font-medium mb-2">
                 Projected Mileage
@@ -381,97 +407,45 @@ export default function EVCompanion() {
                 <p className="text-red-500 text-sm mt-1">{projectedMileageError}</p>
               )}
             </div>
-          </form>
 
-          {/* Additional Factors */}
-          <div className="space-y-4 mt-4">
-            <div>
-              <label className="block text-blue-100 text-sm font-medium mb-2">
-                Average Temperature (°F)
-              </label>
-              <input
-                type="range"
-                min={0}
-                max={120}
-                value={climateZone}
-                onChange={(e) => {
-                  setClimateZone(Number(e.target.value));
-                  updateBatteryHealth();
-                }}
-                className="w-full accent-blue-500"
-              />
-              <span className="text-blue-100 text-sm">{climateZone}°F</span>
-            </div>
-
-            <div>
-              <label className="block text-blue-100 text-sm font-medium mb-2">
-                Fast Charging Frequency
-              </label>
-              <input
-                type="range"
-                min={0}
-                max={1}
-                step={0.1}
-                value={fastChargingFrequency}
-                onChange={(e) => {
-                  setFastChargingFrequency(Number(e.target.value));
-                  updateBatteryHealth();
-                }}
-                className="w-full accent-blue-500"
-              />
-              <span className="text-blue-100 text-sm">
-                {Math.round(fastChargingFrequency * 100)}% of charges
-              </span>
-            </div>
-
-            <div>
+            {/* Driving Style Selector */}
+            <div className="mt-6">
               <label className="block text-blue-100 text-sm font-medium mb-2">
                 Driving Style
               </label>
               <select
                 value={drivingStyle}
-                onChange={(e) => {
-                  setDrivingStyle(e.target.value);
-                  calculateEstimatedRange();
-                }}
-                className="w-full px-4 py-2 rounded-lg bg-white/5 border border-blue-300/30 text-white placeholder-blue-200/70 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                onChange={(e) => setDrivingStyle(e.target.value)}
+                className="w-full px-4 py-2 rounded-lg bg-white/5 border border-blue-300/30 
+                  text-white focus:outline-none focus:ring-2 focus:ring-blue-400"
               >
+                <option value="Conservative">Conservative</option>
                 <option value="Normal">Normal</option>
                 <option value="Aggressive">Aggressive</option>
-                <option value="Conservative">Conservative</option>
               </select>
             </div>
+            
+            {/* Calculate Battery Health Button */}
+            <button
+              type="submit"
+              className="w-full py-3 px-6 rounded-lg bg-blue-500 hover:bg-blue-600 
+                text-white font-medium transition-colors"
+            >
+              Calculate Battery Health
+            </button>
 
-            <div>
-              <label className="block text-blue-100 text-sm font-medium mb-2">
-                Temperature (°F)
-              </label>
-              <input
-                type="number"
-                value={temperature}
-                onChange={(e) => {
-                  setTemperature(Number(e.target.value));
-                  calculateEstimatedRange();
-                }}
-                className="w-full px-4 py-2 rounded-lg bg-white/5 border border-blue-300/30 text-white placeholder-blue-200/70 focus:outline-none focus:ring-2 focus:ring-blue-400"
+            {/* Range Reassurance Section */}
+            <motion.div>
+              <h2 className="text-2xl font-semibold text-white mb-6">Range Reassurance</h2>
+              <RangeGauge
+                currentRange={estimatedRange}
+                maxRange={batteryData.maxRange}
+                batteryHealth={batteryData.degradation}
+                temperature={temperature}
+                drivingStyle={drivingStyle}
               />
-            </div>
-
-            <div className="bg-blue-900/40 rounded-lg p-4">
-              <div className="flex justify-between items-center mb-2">
-                <span className="text-blue-100">Estimated Range:</span>
-                <span className="text-blue-100 font-bold">
-                  {estimatedRange} miles
-                </span>
-              </div>
-              <div className="w-full bg-blue-900/40 rounded-full h-2">
-                <div 
-                  className="bg-blue-500 h-2 rounded-full"
-                  style={{ width: `${(estimatedRange / batteryData.maxRange) * 100}%` }}
-                />
-              </div>
-            </div>
-          </div>
+            </motion.div>
+          </form>
         </motion.div>
 
         {/* Historical Data */}
@@ -546,40 +520,6 @@ export default function EVCompanion() {
                 </div>
               </div>
             ))}
-          </div>
-        </motion.div>
-
-        {/* Range Reassurance */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="bg-white/10 backdrop-blur-lg rounded-xl p-6 shadow-2xl mb-8"
-        >
-          <h2 className="text-2xl font-semibold text-white mb-6">Range Reassurance</h2>
-          <RangeGauge
-            currentRange={estimatedRange}
-            maxRange={batteryData.maxRange}
-            batteryHealth={batteryData.degradation}
-            temperature={temperature}
-            drivingStyle={drivingStyle}
-          />
-          
-          {/* Driving Style Selector */}
-          <div className="mt-6">
-            <label className="block text-blue-100 text-sm font-medium mb-2">
-              Driving Style
-            </label>
-            <select
-              value={drivingStyle}
-              onChange={(e) => setDrivingStyle(e.target.value)}
-              className="w-full px-4 py-2 rounded-lg bg-white/5 border border-blue-300/30 
-                text-white focus:outline-none focus:ring-2 focus:ring-blue-400"
-            >
-              <option value="Conservative">Conservative</option>
-              <option value="Normal">Normal</option>
-              <option value="Aggressive">Aggressive</option>
-            </select>
           </div>
         </motion.div>
       </div>
