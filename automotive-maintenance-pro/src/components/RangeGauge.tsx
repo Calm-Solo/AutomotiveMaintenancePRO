@@ -17,9 +17,9 @@ export default function RangeGauge({
   drivingStyle,
   isCalculated = false
 }: RangeGaugeProps) {
-  // Show initial state if not calculated
-  const displayRange = isCalculated ? currentRange : maxRange;
-  const displayHealth = isCalculated ? batteryHealth : 100;
+  // Show initial state if not calculated, handle NaN values
+  const displayRange = isCalculated && !isNaN(currentRange) ? currentRange : maxRange;
+  const displayHealth = isCalculated && !isNaN(batteryHealth) ? batteryHealth : 100;
 
   // Calculate the percentage of range remaining
   const rangePercentage = (displayRange / maxRange) * 100;
@@ -67,7 +67,7 @@ export default function RangeGauge({
             className="text-2xl font-bold"
             fill="white"
           >
-            {!isNaN(displayRange) ? displayRange : maxRange}
+            {displayRange}
           </text>
           <text
             x="100"

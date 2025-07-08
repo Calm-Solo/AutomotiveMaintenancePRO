@@ -11,9 +11,9 @@ export default function BatteryDisplay({
   degradation, 
   isCalculated = false 
 }: BatteryDisplayProps) {
-  // Show initial state if not calculated
-  const displayCharge = isCalculated ? charge : 100;
-  const displayDegradation = isCalculated ? degradation : 100;
+  // Show initial state if not calculated, handle NaN values
+  const displayCharge = isCalculated && !isNaN(charge) ? charge : 100;
+  const displayDegradation = isCalculated && !isNaN(degradation) ? degradation : 100;
 
   // Get battery color based on charge level
   const getBatteryColor = (level: number) => {
@@ -60,10 +60,10 @@ export default function BatteryDisplay({
         {/* Percentage Display */}
         <div className="absolute inset-0 flex items-center justify-center flex-col">
           <span className="text-3xl font-bold text-white drop-shadow-lg">
-            {!isNaN(displayCharge) ? `${displayCharge}%` : '100%'}
+            {displayCharge}%
           </span>
           <span className="text-sm text-blue-200 mt-1">
-            Health: {!isNaN(displayDegradation) ? `${displayDegradation}%` : '100%'}
+            Health: {displayDegradation}%
           </span>
         </div>
       </div>

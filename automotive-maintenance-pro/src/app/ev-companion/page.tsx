@@ -68,16 +68,17 @@ export default function EVCompanion() {
   // Add state for driving style
   const [drivingStyle, setDrivingStyle] = useState('Normal');
   const [temperature, setTemperature] = useState(75); // Default temperature
-  const [estimatedRange, setEstimatedRange] = useState(0);
+  const [estimatedRange, setEstimatedRange] = useState(320); // Default to max range
 
   // Calculate estimated range whenever relevant factors change
   const calculateEstimatedRange = () => {
     // Base range (assuming a full charge)
-    const baseRange = batteryData.maxRange;
+    const baseRange = batteryData.maxRange || 320;
     let adjustedRange = baseRange;
 
-    // Apply battery health factor
-    adjustedRange *= (batteryData.degradation / 100);
+    // Apply battery health factor (ensure it's a valid number)
+    const healthFactor = (batteryData.degradation || 100) / 100;
+    adjustedRange *= healthFactor;
 
     // Apply temperature impact
     if (temperature < 32) {
@@ -101,11 +102,11 @@ export default function EVCompanion() {
     return Math.round(adjustedRange);
   };
 
-  // Update useEffect to use the new function
-  useEffect(() => {
-    const newEstimatedRange = calculateEstimatedRange();
-    setEstimatedRange(newEstimatedRange);
-  }, [batteryData.maxRange, batteryData.degradation, temperature, drivingStyle]);
+  // Remove automatic calculation - only calculate when button is pressed
+  // useEffect(() => {
+  //   const newEstimatedRange = calculateEstimatedRange();
+  //   setEstimatedRange(newEstimatedRange);
+  // }, [batteryData.maxRange, batteryData.degradation, temperature, drivingStyle]);
 
   // Validation function
   const validateMileageInputs = (
@@ -139,7 +140,7 @@ export default function EVCompanion() {
     return isValid;
   };
 
-  // Update battery health calculation
+  // Update battery health calculation - only called when button is pressed
   const updateBatteryHealth = () => {
     if (!validateMileageInputs(
       batteryData.initialMileage,
@@ -149,20 +150,28 @@ export default function EVCompanion() {
       return;
     }
 
+    // Validate purchase date
+    if (!purchaseDate) {
+      return;
+    }
+
     const purchaseDateObj = new Date(purchaseDate);
     const currentDate = new Date();
     const yearsOwned = (currentDate.getTime() - purchaseDateObj.getTime()) / (1000 * 60 * 60 * 24 * 365);
 
+    // Ensure we have valid numbers for calculation
+    const milesDriven = Math.max(0, (batteryData.currentMileage || 0) - (batteryData.initialMileage || 0));
+    
     const degradation = calculateBatteryDegradation({
-      age: yearsOwned,
-      milesDriven: batteryData.currentMileage - batteryData.initialMileage,
-      climate: climateZone,
-      chargingHabits: fastChargingFrequency,
+      age: Math.max(0, yearsOwned),
+      milesDriven: milesDriven,
+      climate: climateZone || 75,
+      chargingHabits: fastChargingFrequency || 0.2,
     });
 
     // Calculate current charge based on degradation and environmental factors
-    const maxPossibleCharge = 100 - degradation;
-    const temperatureImpact = Math.abs(climateZone - 70) * 0.1; // Optimal temperature around 70°F
+    const maxPossibleCharge = Math.max(0, 100 - degradation);
+    const temperatureImpact = Math.abs((climateZone || 75) - 70) * 0.1; // Optimal temperature around 70°F
     const currentCharge = Math.max(0, Math.min(maxPossibleCharge - temperatureImpact, 100));
 
     // Update max range based on degradation
@@ -240,10 +249,10 @@ export default function EVCompanion() {
       return;
     }
 
-    // Calculate battery health and range
+    // Calculate battery health and range only when button is pressed
+    updateBatteryHealth();
     const newEstimatedRange = calculateEstimatedRange();
     setEstimatedRange(newEstimatedRange);
-    updateBatteryHealth();
     setIsCalculated(true);
   };
 
@@ -326,7 +335,6 @@ export default function EVCompanion() {
                 onChange={(e) => {
                   const newPurchaseDate = e.target.value;
                   setPurchaseDate(newPurchaseDate);
-                  updateBatteryHealth();
                 }}
                 className="w-full px-4 py-2 rounded-lg bg-white/5 border border-blue-300/30 text-white placeholder-blue-200/70 focus:outline-none focus:ring-2 focus:ring-blue-400"
               />
@@ -377,7 +385,6 @@ export default function EVCompanion() {
                     ...prev,
                     currentMileage: newCurrentMileage
                   }));
-                  updateBatteryHealth();
                 }}
                 className="w-full px-4 py-2 rounded-lg bg-white/5 border border-blue-300/30 text-white placeholder-blue-200/70 focus:outline-none focus:ring-2 focus:ring-blue-400"
               />
@@ -399,7 +406,6 @@ export default function EVCompanion() {
                 onChange={(e) => {
                   const newProjectedMileage = Number(e.target.value);
                   setProjectedMileage(newProjectedMileage);
-                  updateBatteryHealth();
                 }}
                 className="w-full px-4 py-2 rounded-lg bg-white/5 border border-blue-300/30 text-white placeholder-blue-200/70 focus:outline-none focus:ring-2 focus:ring-blue-400"
               />
@@ -443,6 +449,7 @@ export default function EVCompanion() {
                 batteryHealth={batteryData.degradation}
                 temperature={temperature}
                 drivingStyle={drivingStyle}
+                isCalculated={isCalculated}
               />
             </motion.div>
           </form>
