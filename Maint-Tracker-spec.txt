@@ -1,0 +1,66 @@
+1. Overview
+- Feature name: Record Tracker
+- Purpose: Let users log one or more vehicles’ basic details and service notes, then store entries in a serverless Postgres database so they can view last‐service data, set reminders, and never lose track of maintenance history.
+
+2. UI/UX Requirements
+- Menu Bar
+- Add a new top‐level menu item labeled “Record Tracker.”
+- Highlight the active page.
+- Record Tracker Page
+- Display a form with four inputs:
+- Make (text, required)
+- Model (text, required)
+- Current Mileage (number, required)
+- Notes (multiline text, optional)
+- Submit button: “Save Record” (disabled while saving).
+- Inline status messages:
+- “Saving…” during submission
+- “Record saved!” on success
+- “Something went wrong.” on error
+- After success, clear form fields.
+- Dashboard Integration (later)
+- Show latest mileage and date of last record for each vehicle.
+- Optionally list recent entries.
+
+3. Data Model
+
+Neon serverless PostGres database account 
+
+
+
+
+4. API Endpoints
+- POST /api/records
+- Purpose: Insert a new vehicle record.
+- Request body: JSON with make, model, mileage, notes.
+- Auth: Require user session (e.g., NextAuth).
+- Response: Created record object or error.
+- GET /api/records
+- Purpose: Fetch all records for the authenticated user, ordered by newest first.
+- Auth: Same as POST.
+- Response: Array of record objects.
+
+
+
+5. Authentication & Security
+- Use existing auth solution (e.g., NextAuth).
+- On each API call, verify session and extract session.user.id.
+- Reject unauthenticated requests with HTTP 401.
+- Sanitize and validate all incoming fields server‐side
+
+6. Environment & Configuration
+- Database: Neon Serverless Postgres
+- Connection:
+- Environment variable: DATABASE_URL
+- Permissions: ensure the table is created and migrations are applied before first use.
+- Deployment: Azure Static Web Apps
+- Store sensitive vars (DATABASE_URL, NEXTAUTH_SECRET) in Azure environment settings.
+- Use GitHub Actions or Azure DevOps for CI/CD.
+
+7. Next‐Phase Enhancements
+- Listing and paging of past records on the Record Tracker page.
+- Mileage‐based reminder system (e.g., notify when user hits +5,000 miles).
+- Edit and delete capabilities per record.
+- Calendar or push notifications integration.
+- Multi‐vehicle selector and filtering
+

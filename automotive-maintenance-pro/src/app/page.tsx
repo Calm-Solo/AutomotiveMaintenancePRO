@@ -144,11 +144,20 @@ export default function Home() {
                   <Link
                     href="/ev-companion"
                     className="block px-6 py-3 text-base text-blue-100 hover:bg-blue-800/50 
-                    transition-colors"
+                    border-b border-blue-800/30 transition-colors"
                     role="menuitem"
                     onClick={() => setIsDropdownOpen(false)}
                   >
                     EV Companion
+                  </Link>
+                  <Link
+                    href="/record-tracker"
+                    className="block px-6 py-3 text-base text-blue-100 hover:bg-blue-800/50 
+                    transition-colors"
+                    role="menuitem"
+                    onClick={() => setIsDropdownOpen(false)}
+                  >
+                    Record Tracker
                   </Link>
                 </div>
               </div>
